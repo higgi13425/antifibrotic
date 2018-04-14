@@ -4,8 +4,9 @@ library(ggsignif)
 library(readxl)
 library(here)
 
+
 #read data with readr package
-df <- read_excel(here("MST-41.xlsx"), sheet = "gross", skip =4)
+df <- read_excel(here::here("MST-41.xlsx"), sheet = "gross", skip =4)
 
 #clean up names
 names(df) <- c('rx', 'mouse_num', 'group', 'length','junk', 'gross_wt',
@@ -69,11 +70,11 @@ gridge <- ggplot(df, aes(x = colon_wt, y= as.factor(group), fill = group)) +
 gridge
 
 # add ggsignif to boxplot
-ggplot(df, aes(x= as.factor(group), y = colon_wt) ) +
+gweight <- ggplot(df, aes(x= as.factor(group), y = colon_wt) ) +
   geom_boxplot() +
-  geom_signif(y_position = 0.67,comparisons = list(c("1", "3"))) +
-  geom_signif(y_position = 0.69,comparisons = list(c("3", "4"))) +
-  geom_signif(y_position = 0.71,comparisons = list(c("3", "5"))) +
+  geom_signif(y_position = 0.67,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 0.69,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 0.71,comparisons = list(c("3", "5")), test="t.test") +
   scale_x_discrete(labels = c("1" = "Untreated", 
                               "2" = "AF Medication control",
                               "3" = "Induced Fibrosis",
@@ -82,6 +83,40 @@ ggplot(df, aes(x= as.factor(group), y = colon_wt) ) +
   labs(y = "Colon Weight (grams)", x = "Treatment Group") +
   theme(legend.position = "none", plot.title = element_text(face="bold")) +
   ggtitle("MST-41 Results")
+gweight
+ggsave("gweight.png", gweight,width = 6, height =4, units = "in", dpi=300 )
+
+# repeat with colon_dens
+ggplot(df, aes(x= as.factor(category), y = cec_col_wt) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 0.080,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 0.082,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 0.085,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "Colon Density (grams/cm)", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 Results")
+
+
+# repeat with colon_frac
+ggplot(df, aes(x= as.factor(group), y = colon_fraction) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 0.034,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 0.037,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 0.040,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "Colon proportion (of body wt)", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 Results")
+
 
 # add ggsignif to violinplot
 ggplot(df, aes(x= as.factor(group), y = colon_wt) ) +
@@ -99,3 +134,19 @@ ggplot(df, aes(x= as.factor(group), y = colon_wt) ) +
   theme(legend.position = "none", plot.title = element_text(face="bold")) +
   ggtitle("MST-41 Results") +
   coord_flip()
+
+# make powerpoint slides
+#save image - not working - problem with cairo DLL
+savePlot<- function(myplot) {
+  png("myplot.png")
+  print(myplot)
+  dev.off()
+}
+savePlot(gweight)
+
+#create presentation
+my_pres <- read_pptx()
+my_pres <- my_pres %>% 
+  add_slide(layout= "Title and Content", master = "Office Theme") %>% 
+  ph_with_text(type = "title", str = "Results of Anti-Fibrotic Therapy Experiment") %>% 
+  ph_with_img(type="body", index =1, src=)
