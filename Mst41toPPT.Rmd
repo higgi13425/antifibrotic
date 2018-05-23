@@ -1,0 +1,300 @@
+---
+title: "Analysis of MST-41 Anti-Fibrotic Therapy"
+author: "Peter Higgins"
+# date: "13 April 2018"
+output: 
+  #word_document
+  #pdf_document
+  #html_document
+  powerpoint_presentation
+    #reference_doc: my-styles.pptx
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggridges)
+library(ggsignif)
+library(readxl)
+library(here)
+
+tidygenes <- read_excel(here::here("MST-41tidy.xlsx"),
+                        sheet = "mst41_geneexp_tidy")
+
+tidyweights <- read_excel(here::here("MST-41tidy.xlsx"),
+                          sheet = "colonweight_tidy")
+```
+
+# Anti-fibrotic Therapy Data 
+
+## Background
+
+* Intestinal Fibrosis leads to surgery in 70% of Crohn's disease
+* Intestinal Myofibroblasts are stimulated to generate scar by:
+  + injury/ wounding
+  + matrix stiffness
+  
+## Background 2
+
+* Matrix Stiffness Activates Myofibroblasts
+* Activated Myofibroblasts Synthesize Stiff Matrix
+* Positive Feedback Loop --> **More Fibrosis**
+  + This is Bad
+    + It gets worse
+      + It can get *even* worse
+
+## Hypothesis and Aims
+### Hypothesis
+- Determine whether Anti-fibrotic drug can reverse fibrosis
+
+### Aims
+- Determine whether Colon Weight is reduced by AFD
+- Determine whether Gene Expression of Collagen 1, TGFb, CTGF is reduced by AFD
+- Determine whether Protein expression of Collagen 1, aSMA, FN  is reduced by AFD
+
+# Experimental Design
+
+## Experimental Design 1
+
+- Get mice
+- Strep cleanout
+
+## Experimental Design 2
+
+1.  Infect with Salmonella
+2.  Wait 8 days
+3.  Levo x 5 days in the water
+4.  Rest Day
+5.  Anti-fibrotic drug x 10 days
+6.  Image
+  +  Ultrasound
+    + SWV
+    + Strain
+  +  Photoacoustic
+7.  Sac
+
+## Experimental Design Diagram
+
+[//]: (How to Show an Image Comment)
+[//]:  ![Optional Caption goes Here]
+
+
+# Results
+
+## Weight Result
+
+```{r weight, echo=FALSE, fig.width= 12, fig.height= 7}
+ggplot(tidyweights, aes(x= as.factor(category), y = cec_col_wt) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 0.68,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 0.70,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 0.72,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "Colon Weight (grams)", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 Weight Results")
+```
+
+## TGFb Result
+
+```{r , echo=FALSE, fig.width= 12, fig.height= 7}
+tidygenes %>% 
+  filter(gene == "tgfb") %>% 
+  ggplot(.,aes(x= as.factor(category), y = fold) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 3.0,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 3.2,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 3.5,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "TGFb Expression", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 TGFb Expression")
+```
+
+## CTGF Result
+
+```{r ctgf, echo=FALSE, fig.width= 12, fig.height= 7}
+tidygenes %>% 
+  filter(gene == "ctgf") %>% 
+  ggplot(.,aes(x= as.factor(category), y = fold) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 6.4,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 7.6,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 8.5,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "CTGF Expression", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 CTGF Expression")
+```
+
+## IGF-1 Result
+```{r igf1, echo=FALSE, fig.width= 12, fig.height= 7}
+tidygenes %>% 
+  filter(gene == "igf1") %>% 
+  ggplot(.,aes(x= as.factor(category), y = fold) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 4.9,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 5.2,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 5.5,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "IGF-1 Expression", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 IGF-1 Expression")
+```
+
+## Collagen 1 Result
+
+```{r col1, echo=FALSE, fig.width= 12, fig.height= 7}
+tidygenes %>% 
+  filter(gene == "col1a1") %>% 
+  ggplot(.,aes(x= as.factor(category), y = fold) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 3.0,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 3.2,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 3.5,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "Collagen 1 Expression", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 Collagen 1 Expression")
+```
+
+## Collagen 3 Result
+
+```{r col3, echo=FALSE, fig.width= 12, fig.height= 7}
+tidygenes %>% 
+  filter(gene == "col3a1") %>% 
+  ggplot(.,aes(x= as.factor(category), y = fold) ) +
+  geom_boxplot() +
+  geom_signif(y_position = 2.5,comparisons = list(c("1", "3")), test="t.test") +
+  geom_signif(y_position = 2.8,comparisons = list(c("3", "4")), test="t.test") +
+  geom_signif(y_position = 3.1,comparisons = list(c("3", "5")), test="t.test") +
+  scale_x_discrete(labels = c("1" = "Untreated", 
+                              "2" = "AF Medication control",
+                              "3" = "Induced Fibrosis",
+                              "4" = "Fibrosis + Low Dose AF",
+                              "5" = "Fibrosis + High Dose AF")) +
+  labs(y = "Colon Weight (grams)", x = "Treatment Group") +
+  theme(legend.position = "none", plot.title = element_text(face="bold")) +
+  ggtitle("MST-41 Collagen 3 Expression")
+```
+
+
+# Conclusions
+
+## Conclusions
+
+* Antifibrotic Drug Works in Human Intestinal Organoids
+* Antifibrotic Drug Works in Salmonella Mouse Model
+* Antifibrotic Drug Works in TNBS Rat Model
+  + This is Amazing
+    + Clinical Trials to Follow
+      + Sure Hope the Ultrasound Works
+
+# Examples of other stuff you can do with Rmd 
+
+## R Markdown
+
+- This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, MS Word, and now **PowerPoint** documents. For more details on using R Markdown see 
+
+- When you click the *Knit* button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. 
+
+## Block Quotes
+
+A friend once said:
+
+> It's always better to give
+> than to receive. Totes magotes,
+> my friend, he said. I don't know why 
+> he said this.
+
+
+
+## You can embed an R code chunk like this:
+
+```{r cars, echo=TRUE}
+summary(cars)
+```
+
+## Including Plots
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+## And Tables
+
+Treatment Arm  | Colon Weight (gm)
+-------------- | -------------
+Control        | 17.2
+S.typhi        | 23.7
+S.typhi+ AFD   | 17.9
+
+## Inline R code
+
+Inline R Code
+
+There were `r nrow(cars)` cars studied
+
+## R Code Chunks
+
+```{r}
+summary(cars$dist)
+summary(cars$speed)
+```
+
+
+## Add Links
+
+Links
+
+Use a plain http address or add a link to a phrase:
+
+
+
+
+## Miscellaneous
+
+- Manual Line breaks,     
+end line with 2 or more spaces   
+Roses are red,   
+Violets are blue.   
+
+superscript^2^
+
+~~strikethrough~~
+
+## Horizontal Line break
+
+Horizontal Rule / Page Break
+
+Three or more asterisks or dashes:
+
+******
+
+and continue
+
+## Use of the echo parameter
+
+* Note that the `echo = FALSE` parameter was added to the previous plotting code chunk to prevent printing of the R code that generated the plot.
+
+* If you want to see the R code **and** the output, like in the previous summary table, then set the parameter to `echo=TRUE`

@@ -23,7 +23,8 @@ ggplot(tidyweights, aes(x= as.factor(category), y = cec_col_wt) ) +
                               "5" = "Fibrosis + High Dose AF")) +
   labs(y = "Colon Weight (grams)", x = "Treatment Group") +
   theme(legend.position = "none", plot.title = element_text(face="bold")) +
-  ggtitle("MST-41 Weight Results")
+  ggtitle("MST-41 Weight Results") ->
+weights
 
 # analyze CTGF expression
 tidygenes %>% 
