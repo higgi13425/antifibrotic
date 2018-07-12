@@ -55,6 +55,10 @@ table_ft <- table %>%
   fontsize(part='header', size =16) %>% 
   fontsize(part='body', size =14) %>% 
   bold(part = 'header') %>% 
+<<<<<<< HEAD
+=======
+  border(border = fp_border(), part = 'all') %>% 
+>>>>>>> c2a25278241852ecc40a8c3193137cc662c9a8ac
   set_formatter(`p value` = function(x) sprintf("%0.05f", x))
 table_ft
 #plotting
