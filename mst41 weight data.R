@@ -3,7 +3,8 @@ library(ggridges)
 library(ggsignif)
 library(readxl)
 library(here)
-
+library(huxtable)
+library(flextable)
 
 #read data with readr package
 df <- read_excel(here::here("MST-41.xlsx"), sheet = "gross", skip =4)
@@ -22,21 +23,40 @@ df <- df %>% select(-starts_with('junk'), -gross_wt, -tare) %>%
 
 # t tests
 # un vs drug control
-with(df, t.test(colon_wt[group==1], colon_wt[group==2]))
+t12 <- broom::tidy(with(df, t.test(colon_wt[group==1], colon_wt[group==2])))
 onetwo <- with(df, t.test(colon_wt[group==1], colon_wt[group==2]))$p.value
 
 # un vs S. typh
-with(df, t.test(colon_wt[group==1], colon_wt[group==3]))
+t13 <- broom::tidy(with(df, t.test(colon_wt[group==1], colon_wt[group==3])))
 onethree <- with(df, t.test(colon_wt[group==1], colon_wt[group==3]))$p.value
 
 #  S. typh vs. low dose ABT263
-with(df, t.test(colon_wt[group==3], colon_wt[group==4]))
+t34 <- broom::tidy(with(df, t.test(colon_wt[group==3], colon_wt[group==4])))
 threefour <- with(df, t.test(colon_wt[group==3], colon_wt[group==4]))$p.value
 
 # S. typh vs. high dose ABT263
-with(df, t.test(colon_wt[group==3], colon_wt[group==5]))
+t35 <- broom::tidy(with(df, t.test(colon_wt[group==3], colon_wt[group==5])))
 threefive <- with(df, t.test(colon_wt[group==3], colon_wt[group==5]))$p.value
 
+#put together t-tests in a table
+table <- bind_rows(t12, t13, t34, t35)
+table$test <- c('un vs drug control', 'un vs S. typh', 
+                 'S. typh vs. low dose ABT263',
+                 'S. typh vs. high dose ABT263')
+table <- table %>% select(test, estimate, p.value) %>% 
+  rename("Mean weight difference (g)" = estimate,
+         "Comparison" = test,
+         "p value" = p.value)
+
+table_ft <- table %>% 
+  regulartable() %>%
+  width(width = c(2.7,2,1)) %>% 
+  align(align = 'center', part = 'all') %>% 
+  fontsize(part='header', size =16) %>% 
+  fontsize(part='body', size =14) %>% 
+  bold(part = 'header') %>% 
+  set_formatter(`p value` = function(x) sprintf("%0.05f", x))
+table_ft
 #plotting
 #boxplot
 ggplot(df, aes(x= as.factor(group), y = colon_wt)) +
